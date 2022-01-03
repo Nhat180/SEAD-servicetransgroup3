@@ -22,6 +22,8 @@ public class ServiceTrans {
 
     private String address;
 
+    private String phone;
+
     private String mechanic;
 
     private String serviceName;
