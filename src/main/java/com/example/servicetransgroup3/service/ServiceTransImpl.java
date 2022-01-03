@@ -14,6 +14,12 @@ public class ServiceTransImpl {
     @Autowired
     private ServiceTransRepository serviceTransRepository;
 
+    public void createServiceTrans (ServiceTrans serviceTrans) {
+        serviceTrans.setStartDate(null);
+        serviceTrans.setEndDate(null);
+        serviceTransRepository.save(serviceTrans);
+    }
+
     public ServiceTrans getServiceTrans(Long id) {
         ServiceTrans serviceTrans = new ServiceTrans();
         try {
@@ -35,10 +41,12 @@ public class ServiceTransImpl {
         return serviceTransList;
     }
 
+    
     public List<ServiceTrans> getAllAcceptedJob(String currentMechanic) {
         List<ServiceTrans> serviceTransList = this.serviceTransRepository.findAllByMechanic(currentMechanic);
         for (int i = 0; i < serviceTransList.size(); i++) {
-            if (serviceTransList.get(i).getStartDate() == null) {
+            if (serviceTransList.get(i).getStartDate() == null ||
+            serviceTransList.get(i).getEndDate() != null) {
                 serviceTransList.remove(i);
             }
         }
