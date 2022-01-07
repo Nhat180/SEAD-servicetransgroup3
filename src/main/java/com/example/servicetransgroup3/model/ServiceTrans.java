@@ -26,6 +26,8 @@ public class ServiceTrans {
 
     private String mechanic;
 
+    private Long mechanicId;
+
     private String serviceName;
 
     private Integer totalCost;
