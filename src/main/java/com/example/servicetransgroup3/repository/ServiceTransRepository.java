@@ -10,4 +10,5 @@ import java.util.Optional;
 @Repository
 public interface ServiceTransRepository extends JpaRepository<ServiceTrans, Long> {
     List<ServiceTrans> findAllByMechanic (String mechanic);
+    List<ServiceTrans> findAllByMechanicId (Long mechanicId);
 }
