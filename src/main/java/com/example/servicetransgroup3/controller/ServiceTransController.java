@@ -39,13 +39,23 @@ public class ServiceTransController {
     }
 
     @GetMapping("/getrequestjob")
-    public List<ServiceTrans> getAllUnAcceptedJob (@RequestParam String mechanic) {
+    public List<ServiceTrans> getAllUnAcceptedJob (@RequestParam Long mechanic) {
         return serviceTransImpl.getAllUnAcceptedJob(mechanic);
     }
 
     @GetMapping("/gettodojob")
-    public List<ServiceTrans> getAllAcceptedJob (@RequestParam String mechanic) {
+    public List<ServiceTrans> getAllAcceptedJob (@RequestParam Long mechanic) {
         return serviceTransImpl.getAllAcceptedJob(mechanic);
+    }
+
+    @PostMapping("/acceptjob/{id}")
+    public void acceptJob(@PathVariable(value = "id") Long id) {
+        serviceTransImpl.acceptJob(id);
+    }
+
+    @PostMapping("/finishjob/{id}")
+    public void finishJob(@PathVariable(value = "id") Long id) {
+        serviceTransImpl.finishJob(id);
     }
 
 }
