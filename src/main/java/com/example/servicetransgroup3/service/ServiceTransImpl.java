@@ -11,10 +11,8 @@ import org.springframework.data.domain.Sort.Order;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 
 @Transactional
 @Service
@@ -82,26 +80,43 @@ public class ServiceTransImpl {
     }
 
 
-    public List<ServiceTrans> getAllUnAcceptedJob(String currentMechanic) {
-        List<ServiceTrans> serviceTransList = this.serviceTransRepository.findAllByMechanic(currentMechanic);
-        for (int i = 0; i < serviceTransList.size(); i++) {
-            if (serviceTransList.get(i).getStartDate() != null) {
-                serviceTransList.remove(i);
+    public List<ServiceTrans> getAllUnAcceptedJob(Long id) {
+        List<ServiceTrans> allJob = this.serviceTransRepository.findAllByMechanicId(id);
+        List<ServiceTrans> serviceTransList = new ArrayList<>();
+        for (ServiceTrans serviceTrans : allJob) {
+            if (serviceTrans.getStartDate() == null && serviceTrans.getEndDate() == null) {
+                serviceTransList.add(serviceTrans);
             }
         }
         return serviceTransList;
     }
 
-
-    public List<ServiceTrans> getAllAcceptedJob(String currentMechanic) {
-        List<ServiceTrans> serviceTransList = this.serviceTransRepository.findAllByMechanic(currentMechanic);
-        for (int i = 0; i < serviceTransList.size(); i++) {
-            if (serviceTransList.get(i).getStartDate() == null ||
-            serviceTransList.get(i).getEndDate() != null) {
-                serviceTransList.remove(i);
+    public List<ServiceTrans> getAllAcceptedJob(Long id) {
+        List<ServiceTrans> allJob = this.serviceTransRepository.findAllByMechanicId(id);
+        List<ServiceTrans> serviceTransList = new ArrayList<>();
+        for (ServiceTrans serviceTrans : allJob) {
+            if (serviceTrans.getStartDate() != null && serviceTrans.getEndDate() == null) {
+                serviceTransList.add(serviceTrans);
             }
         }
         return serviceTransList;
+    }
+
+    public void acceptJob(Long id) {
+        ServiceTrans serviceTrans = getServiceTrans(id);
+        serviceTrans.setStartDate(convertCurrentDateToString());
+    }
+
+    public void finishJob(Long id) {
+        ServiceTrans serviceTrans = getServiceTrans(id);
+        serviceTrans.setEndDate(convertCurrentDateToString());
+    }
+
+    public String convertCurrentDateToString() {
+        String pattern = "dd/MM/yyyy";
+        SimpleDateFormat simpleDateFormat = new SimpleDateFormat(pattern);
+
+        return simpleDateFormat.format(new Date());
     }
 
 
