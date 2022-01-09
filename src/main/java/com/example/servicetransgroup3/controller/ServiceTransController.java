@@ -33,9 +33,10 @@ public class ServiceTransController {
     public ResponseEntity<Map<String, Object>> getAllServiceTransByPage (
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
-            @RequestParam(defaultValue = "serviceTransId,asc") String[] sort
+            @RequestParam(defaultValue = "serviceTransId,asc") String[] sort,
+            @RequestParam(required = false) String keyword
     ) {
-        return new ResponseEntity<>(serviceTransImpl.getAllServiceTransByPage(page,size,sort), HttpStatus.OK);
+        return new ResponseEntity<>(serviceTransImpl.getAllServiceTransByPage(page,size,sort,keyword), HttpStatus.OK);
     }
 
     @GetMapping("/getrequestjob")
