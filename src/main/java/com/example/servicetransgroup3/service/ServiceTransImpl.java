@@ -38,11 +38,11 @@ public class ServiceTransImpl {
     }
 
 
-    public Map<String, Object> getAllServiceTransByPage(int page, int size, String[] sort) {
+    public Map<String, Object> getAllServiceTransByPage(int page, int size, String[] sort, String keyword) {
         Map<String, Object> res = new HashMap<>();
         try {
             List<ServiceTrans> serviceTransList = new ArrayList<>();
-            List<Order> orders = new ArrayList<Order>();
+            List<Sort.Order> orders = new ArrayList<Order>();
 
             if (sort[0].contains(",")) {
                 // will sort more than 2 fields
@@ -53,7 +53,7 @@ public class ServiceTransImpl {
                 }
             } else {
                 // sort=[field, direction]
-                orders.add(new Order(getSortDirection(sort[1]), sort[0]));
+                orders.add(new Sort.Order(getSortDirection(sort[1]), sort[0]));
             }
 
 
@@ -62,7 +62,12 @@ public class ServiceTransImpl {
             Page<ServiceTrans> serviceTransPage;
 
             // paging based on the request of page and size from front-end
-            serviceTransPage = serviceTransRepository.findAll(paging);
+            if (keyword == null || keyword.equals("")) {
+                serviceTransPage = serviceTransRepository.findAll(paging);
+            } else {
+                serviceTransPage = serviceTransRepository.search(keyword,paging);
+            }
+
 
             serviceTransList = serviceTransPage.getContent(); // Assign paging content to list and then return to UI
 
