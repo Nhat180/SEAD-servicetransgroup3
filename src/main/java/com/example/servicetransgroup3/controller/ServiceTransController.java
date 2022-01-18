@@ -30,22 +30,22 @@ public class ServiceTransController {
     }
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> getAllServiceTransByPage (
+    public ResponseEntity<Map<String, Object>> getAllServiceTransByPage(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "5") int size,
             @RequestParam(defaultValue = "serviceTransId,asc") String[] sort,
             @RequestParam(required = false) String keyword
     ) {
-        return new ResponseEntity<>(serviceTransImpl.getAllServiceTransByPage(page,size,sort,keyword), HttpStatus.OK);
+        return new ResponseEntity<>(serviceTransImpl.getAllServiceTransByPage(page, size, sort, keyword), HttpStatus.OK);
     }
 
     @GetMapping("/getrequestjob")
-    public List<ServiceTrans> getAllUnAcceptedJob (@RequestParam Long mechanic) {
+    public List<ServiceTrans> getAllUnAcceptedJob(@RequestParam Long mechanic) {
         return serviceTransImpl.getAllUnAcceptedJob(mechanic);
     }
 
     @GetMapping("/gettodojob")
-    public List<ServiceTrans> getAllAcceptedJob (@RequestParam Long mechanic) {
+    public List<ServiceTrans> getAllAcceptedJob(@RequestParam Long mechanic) {
         return serviceTransImpl.getAllAcceptedJob(mechanic);
     }
 
@@ -59,4 +59,10 @@ public class ServiceTransController {
         serviceTransImpl.finishJob(id);
     }
 
+    @PostMapping("/many")
+    public void createManyServices(@RequestBody ServiceTrans[] serviceTransArray) {
+        for (ServiceTrans serviceTrans : serviceTransArray) {
+            serviceTransImpl.createServiceTrans(serviceTrans);
+        }
+    }
 }
