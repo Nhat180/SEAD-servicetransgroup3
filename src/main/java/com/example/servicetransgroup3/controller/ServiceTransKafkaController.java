@@ -13,10 +13,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
-@RequestMapping("/kafka/servicetran")
+@RequestMapping("/servicetran")
 public class ServiceTransKafkaController {
     static final Logger logger = LoggerFactory.getLogger(ServiceTransKafkaController.class);
-    final String TOPIC = "SERVICE_TRAN";
+    final String TOPIC = "u4k85isn-default";
 
     @Autowired
     private ServiceTransImpl serviceTransImpl;
