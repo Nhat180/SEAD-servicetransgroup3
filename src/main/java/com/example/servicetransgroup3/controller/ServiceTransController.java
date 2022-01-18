@@ -19,10 +19,10 @@ public class ServiceTransController {
     @Autowired
     private ServiceTransImpl serviceTransImpl;
 
-    @PostMapping
-    public void createServiceTrans(@RequestBody ServiceTrans serviceTrans) {
-        serviceTransImpl.createServiceTrans(serviceTrans);
-    }
+//    @PostMapping
+//    public void createServiceTrans(@RequestBody ServiceTrans serviceTrans) {
+//        serviceTransImpl.createServiceTrans(serviceTrans);
+//    }
 
     @GetMapping("/{id}")
     public ServiceTrans getServiceTrans(@PathVariable(value = "id") Long id) {

@@ -3,29 +3,45 @@ package com.example.servicetransgroup3.service;
 import com.example.servicetransgroup3.model.ServiceTrans;
 import com.example.servicetransgroup3.repository.ServiceTransRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Transactional
 @Service
 public class ServiceTransImpl {
+    final String SERVICE_TRANS_CACHE = "Service_Trans";
+
     @Autowired
     private ServiceTransRepository serviceTransRepository;
 
-    public void createServiceTrans (ServiceTrans serviceTrans) {
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+    private ListOperations<String, Object> listOperations;
+
+    @PostConstruct
+    private void initHashOperation() {
+        listOperations = redisTemplate.opsForList();
+    }
+
+    public void createServiceTrans(ServiceTrans serviceTrans) {
         serviceTrans.setStartDate(null);
         serviceTrans.setEndDate(null);
         serviceTransRepository.save(serviceTrans);
     }
 
+    @Cacheable(value = SERVICE_TRANS_CACHE, key = "#id")
     public ServiceTrans getServiceTrans(Long id) {
         ServiceTrans serviceTrans = new ServiceTrans();
         try {
@@ -57,7 +73,7 @@ public class ServiceTransImpl {
             }
 
 
-            Pageable paging = PageRequest.of(page,size,Sort.by(orders));
+            Pageable paging = PageRequest.of(page, size, Sort.by(orders));
 
             Page<ServiceTrans> serviceTransPage;
 
@@ -65,7 +81,7 @@ public class ServiceTransImpl {
             if (keyword == null || keyword.equals("")) {
                 serviceTransPage = serviceTransRepository.findAll(paging);
             } else {
-                serviceTransPage = serviceTransRepository.search(keyword,paging);
+                serviceTransPage = serviceTransRepository.search(keyword, paging);
             }
 
 
@@ -85,26 +101,40 @@ public class ServiceTransImpl {
     }
 
 
+    // Custom key
     public List<ServiceTrans> getAllUnAcceptedJob(Long id) {
-        List<ServiceTrans> allJob = this.serviceTransRepository.findAllByMechanicId(id);
-        List<ServiceTrans> serviceTransList = new ArrayList<>();
-        for (ServiceTrans serviceTrans : allJob) {
-            if (serviceTrans.getStartDate() == null && serviceTrans.getEndDate() == null) {
-                serviceTransList.add(serviceTrans);
+        Long redisListLength = listOperations.size("Accepted" + id);
+        if (redisListLength != 0)
+            return (List<ServiceTrans>) (Object) listOperations.range("Unaccepted" + id, 0, redisListLength);
+        else {
+            List<ServiceTrans> allJob = this.serviceTransRepository.findAllByMechanicId(id);
+            List<ServiceTrans> serviceTransList = new ArrayList<>();
+            for (ServiceTrans serviceTrans : allJob) {
+                if (serviceTrans.getStartDate() == null && serviceTrans.getEndDate() == null) {
+                    serviceTransList.add(serviceTrans);
+                }
             }
+            listOperations.rightPushAll("Accepted" + serviceTransList);
+            return serviceTransList;
         }
-        return serviceTransList;
     }
 
+    // Custom key
     public List<ServiceTrans> getAllAcceptedJob(Long id) {
-        List<ServiceTrans> allJob = this.serviceTransRepository.findAllByMechanicId(id);
-        List<ServiceTrans> serviceTransList = new ArrayList<>();
-        for (ServiceTrans serviceTrans : allJob) {
-            if (serviceTrans.getStartDate() != null && serviceTrans.getEndDate() == null) {
-                serviceTransList.add(serviceTrans);
+        Long redisListLength = listOperations.size("Unaccepted" + id);
+        if (redisListLength != 0)
+            return (List<ServiceTrans>) (Object) listOperations.range("Accepted" + id, 0, redisListLength);
+        else {
+            List<ServiceTrans> allJob = this.serviceTransRepository.findAllByMechanicId(id);
+            List<ServiceTrans> serviceTransList = new ArrayList<>();
+            for (ServiceTrans serviceTrans : allJob) {
+                if (serviceTrans.getStartDate() != null && serviceTrans.getEndDate() == null) {
+                    serviceTransList.add(serviceTrans);
+                }
             }
+            listOperations.rightPushAll("Accepted" + serviceTransList);
+            return serviceTransList;
         }
-        return serviceTransList;
     }
 
     public void acceptJob(Long id) {
