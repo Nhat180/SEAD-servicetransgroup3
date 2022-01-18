@@ -26,15 +26,15 @@ public class ServiceTransImpl {
     @Autowired
     private ServiceTransRepository serviceTransRepository;
 
-    @Autowired
-    private RedisTemplate<String, Object> redisTemplate;
-
-    private ListOperations<String, Object> listOperations;
-
-    @PostConstruct
-    private void initHashOperation() {
-        listOperations = redisTemplate.opsForList();
-    }
+//    @Autowired
+//    private RedisTemplate<String, Object> redisTemplate;
+//
+//    private ListOperations<String, Object> listOperations;
+//
+//    @PostConstruct
+//    private void initHashOperation() {
+//        listOperations = redisTemplate.opsForList();
+//    }
 
     public void createServiceTrans(ServiceTrans serviceTrans) {
         serviceTrans.setStartDate(null);

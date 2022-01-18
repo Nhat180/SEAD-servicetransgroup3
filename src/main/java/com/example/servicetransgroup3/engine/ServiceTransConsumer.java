@@ -12,7 +12,7 @@ import org.springframework.stereotype.Service;
 @Service
 public class ServiceTransConsumer {
     final Logger logger = LoggerFactory.getLogger(ServiceTransConsumer.class);
-    final String TOPIC = "SERVICE_TRAN";
+    final String TOPIC = "u4k85isn-default";
     final String GROUP_ID = "SERVICE_TRAN_ID";
 
     @Autowired

@@ -11,16 +11,16 @@ import org.springframework.kafka.config.TopicBuilder;
 		org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration.class,
 		org.springframework.boot.actuate.autoconfigure.security.servlet.ManagementWebSecurityAutoConfiguration.class}
 )
-@EnableCaching
+//@EnableCaching
 public class ServiceTransGroup3Application {
-	final String TOPIC = "SERVICE_TRAN";
+	final String TOPIC = "u4k85isn-default";
 
 	public static void main(String[] args) {
 		SpringApplication.run(ServiceTransGroup3Application.class, args);
 	}
 
-	@Bean
-	NewTopic createTopic() {
-		return TopicBuilder.name(TOPIC + "_CREATE").partitions(1).replicas(3).build();
-	}
+//	@Bean
+//	NewTopic createTopic() {
+//		return TopicBuilder.name(TOPIC + "_CREATE").partitions(1).replicas(3).build();
+//	}
 }
