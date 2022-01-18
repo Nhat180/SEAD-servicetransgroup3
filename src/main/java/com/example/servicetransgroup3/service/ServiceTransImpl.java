@@ -3,29 +3,46 @@ package com.example.servicetransgroup3.service;
 import com.example.servicetransgroup3.model.ServiceTrans;
 import com.example.servicetransgroup3.repository.ServiceTransRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Order;
+import org.springframework.data.redis.core.ListOperations;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import javax.annotation.PostConstruct;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
 @Transactional
 @Service
 public class ServiceTransImpl {
+    final String SERVICE_TRANS_CACHE = "Service_Trans";
+
     @Autowired
     private ServiceTransRepository serviceTransRepository;
 
-    public void createServiceTrans (ServiceTrans serviceTrans) {
+    @Autowired
+    private RedisTemplate<String, Object> redisTemplate;
+
+    private ListOperations<String, Object> listOperations;
+
+    @PostConstruct
+    private void initHashOperation() {
+        listOperations = redisTemplate.opsForList();
+    }
+
+    public void createServiceTrans(ServiceTrans serviceTrans) {
         serviceTrans.setStartDate(null);
         serviceTrans.setEndDate(null);
         serviceTransRepository.save(serviceTrans);
     }
 
+    @Cacheable(value = SERVICE_TRANS_CACHE, key = "#id")
     public ServiceTrans getServiceTrans(Long id) {
         ServiceTrans serviceTrans = new ServiceTrans();
         try {
@@ -57,7 +74,7 @@ public class ServiceTransImpl {
             }
 
 
-            Pageable paging = PageRequest.of(page,size,Sort.by(orders));
+            Pageable paging = PageRequest.of(page, size, Sort.by(orders));
 
             Page<ServiceTrans> serviceTransPage;
 
@@ -65,7 +82,7 @@ public class ServiceTransImpl {
             if (keyword == null || keyword.equals("")) {
                 serviceTransPage = serviceTransRepository.findAll(paging);
             } else {
-                serviceTransPage = serviceTransRepository.search(keyword,paging);
+                serviceTransPage = serviceTransRepository.search(keyword, paging);
             }
 
 
@@ -84,7 +101,7 @@ public class ServiceTransImpl {
         }
     }
 
-
+    @Cacheable(value = SERVICE_TRANS_CACHE + "_Unaccepted", key = "#id")
     public List<ServiceTrans> getAllUnAcceptedJob(Long id) {
         List<ServiceTrans> allJob = this.serviceTransRepository.findAllByMechanicId(id);
         List<ServiceTrans> serviceTransList = new ArrayList<>();
@@ -96,6 +113,7 @@ public class ServiceTransImpl {
         return serviceTransList;
     }
 
+    @Cacheable(value = SERVICE_TRANS_CACHE + "_Accepted", key = "#id")
     public List<ServiceTrans> getAllAcceptedJob(Long id) {
         List<ServiceTrans> allJob = this.serviceTransRepository.findAllByMechanicId(id);
         List<ServiceTrans> serviceTransList = new ArrayList<>();
