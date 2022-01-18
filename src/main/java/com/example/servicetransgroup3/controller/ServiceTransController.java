@@ -59,6 +59,7 @@ public class ServiceTransController {
         serviceTransImpl.finishJob(id);
     }
 
+    // This one is for quick data insertion so there is no need for kafka
     @PostMapping("/many")
     public void createManyServices(@RequestBody ServiceTrans[] serviceTransArray) {
         for (ServiceTrans serviceTrans : serviceTransArray) {

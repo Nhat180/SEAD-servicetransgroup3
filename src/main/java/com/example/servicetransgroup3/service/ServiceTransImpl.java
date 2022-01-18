@@ -28,6 +28,7 @@ public class ServiceTransImpl {
 
     @Autowired
     private RedisTemplate<String, Object> redisTemplate;
+
     private ListOperations<String, Object> listOperations;
 
     @PostConstruct
@@ -100,41 +101,28 @@ public class ServiceTransImpl {
         }
     }
 
-
-    // Custom key
+    @Cacheable(value = SERVICE_TRANS_CACHE + "_Unaccepted", key = "#id")
     public List<ServiceTrans> getAllUnAcceptedJob(Long id) {
-        Long redisListLength = listOperations.size("Accepted" + id);
-        if (redisListLength != 0)
-            return (List<ServiceTrans>) (Object) listOperations.range("Unaccepted" + id, 0, redisListLength);
-        else {
-            List<ServiceTrans> allJob = this.serviceTransRepository.findAllByMechanicId(id);
-            List<ServiceTrans> serviceTransList = new ArrayList<>();
-            for (ServiceTrans serviceTrans : allJob) {
-                if (serviceTrans.getStartDate() == null && serviceTrans.getEndDate() == null) {
-                    serviceTransList.add(serviceTrans);
-                }
+        List<ServiceTrans> allJob = this.serviceTransRepository.findAllByMechanicId(id);
+        List<ServiceTrans> serviceTransList = new ArrayList<>();
+        for (ServiceTrans serviceTrans : allJob) {
+            if (serviceTrans.getStartDate() == null && serviceTrans.getEndDate() == null) {
+                serviceTransList.add(serviceTrans);
             }
-            listOperations.rightPushAll("Accepted" + serviceTransList);
-            return serviceTransList;
         }
+        return serviceTransList;
     }
 
-    // Custom key
+    @Cacheable(value = SERVICE_TRANS_CACHE + "_Accepted", key = "#id")
     public List<ServiceTrans> getAllAcceptedJob(Long id) {
-        Long redisListLength = listOperations.size("Unaccepted" + id);
-        if (redisListLength != 0)
-            return (List<ServiceTrans>) (Object) listOperations.range("Accepted" + id, 0, redisListLength);
-        else {
-            List<ServiceTrans> allJob = this.serviceTransRepository.findAllByMechanicId(id);
-            List<ServiceTrans> serviceTransList = new ArrayList<>();
-            for (ServiceTrans serviceTrans : allJob) {
-                if (serviceTrans.getStartDate() != null && serviceTrans.getEndDate() == null) {
-                    serviceTransList.add(serviceTrans);
-                }
+        List<ServiceTrans> allJob = this.serviceTransRepository.findAllByMechanicId(id);
+        List<ServiceTrans> serviceTransList = new ArrayList<>();
+        for (ServiceTrans serviceTrans : allJob) {
+            if (serviceTrans.getStartDate() != null && serviceTrans.getEndDate() == null) {
+                serviceTransList.add(serviceTrans);
             }
-            listOperations.rightPushAll("Accepted" + serviceTransList);
-            return serviceTransList;
         }
+        return serviceTransList;
     }
 
     public void acceptJob(Long id) {

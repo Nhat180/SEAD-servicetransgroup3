@@ -25,7 +25,7 @@ public class ServiceTransKafkaController {
     private Gson gson;
 
     @Autowired
-    private KafkaTemplate<String, Object> kafkaTemplate;
+    private KafkaTemplate<String, String> kafkaTemplate;
 
     @PostMapping
     public void createServiceTrans(@RequestBody ServiceTrans serviceTrans) {
